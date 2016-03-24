@@ -45,14 +45,12 @@ def single_mode(player, player_settings):
 def first_in_second_mode(player, player_settings):
     videosrcs = tuple(create_element("videosrc%s" % i, player_settings["videosrc"][i])
                      for i in range(2))
-    for i in videosrcs:
-        print(i)
     video_filters = tuple(create_filter("video_filter%s" % i, player_settings["video_caps"][i])
                           for i in range(2))    
     video_mixer = create_element("video_mixer", "videomixer")
     video_box = create_element("video_box", "videobox")
 
-    set_properties(video_box, (("border-alpha", 0), ("alpha", 0.5), ("left", -10), ("top", -10)))
+    set_properties(video_box, (("border-alpha", 0), ("alpha", 0.5)))
     for i in range(2):
         set_properties(videosrcs[i], player_settings["videosrc_properties"][i])
     

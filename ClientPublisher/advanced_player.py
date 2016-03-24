@@ -6,6 +6,7 @@ from gi.repository import Gtk, Gst, GObject
 class PlayerWindow(Gtk.Window):
     def __init__(self, player_settings):
         self.build_window(player_settings["title"])
+        self.player = None
         self.player_settings = player_settings
 
     def build_window(self, title):
@@ -45,8 +46,15 @@ class PlayerWindow(Gtk.Window):
             elif name == "2":
                 mode = gstvideomode.first_in_second_mode
             self.player_settings["video_mode"] = mode
+            self.build_player(self.player_settings)
+            self.player.set_state(Gst.State.PLAYING)
                                                   
     def build_player(self, player_settings):
+        if player_settings["rtmp_dst"] == None:
+            return
+        if self.player != None:
+            self.player.set_state(Gst.State.NULL)
+
         #Creating elements
         self.create_elements(player_settings)
 
@@ -58,6 +66,7 @@ class PlayerWindow(Gtk.Window):
 
         #Linking elements
         self.link_elements(player_settings)
+
 
         bus = self.player.get_bus()
         bus.add_signal_watch()
@@ -77,6 +86,8 @@ class PlayerWindow(Gtk.Window):
         self.enc_filter.set_property("caps", enc_caps)
         for param, value in player_settings["video_enc_properties"]:
             self.video_enc.set_property(param, value)
+        if player_settings["rtmp_dst"] != None:
+            self.rtmpsink.set_property("location", player_settings["rtmp_dst"])
 
     def add_elements(self, player_settings):
         self.video_mixer = player_settings["video_mode"](self.player, player_settings)
@@ -93,10 +104,9 @@ class PlayerWindow(Gtk.Window):
         
     def start_stop(self, w):
         if self.state_button.get_label() == "Start":
+            self.player_settings["rtmp_dst"] = self.url_entry.get_text().strip()
             self.build_player(self.player_settings)
-            urlpath = self.url_entry.get_text().strip()
             self.state_button.set_label("Stop")
-            self.player.get_by_name("rtmpsink").set_property("location", urlpath)
             self.player.set_state(Gst.State.PLAYING)
         else:
             self.player.set_state(Gst.State.NULL)
@@ -115,7 +125,7 @@ class PlayerWindow(Gtk.Window):
         
 default_settings = {
     "title" : "Player",
-    "video_mode" : gstvideomode.first_in_second_mode,
+    "video_mode" : gstvideomode.single_mode,
     "videosrc" : ("v4l2src", "ximagesrc"),
     "videosrc_properties" : ((), (("use-damage", 0),)),
     "video_caps" : ("video/x-raw,width=320,height=240", None),
@@ -123,6 +133,7 @@ default_settings = {
     "video_enc_properties" : (("tune", "zerolatency"),), 
     "enc_caps" : "video/x-h264,profile=baseline",
     "video_parse" : "h264parse",
+    "rtmp_dst" : None,
 } 
 
 if __name__ == "__main__":
