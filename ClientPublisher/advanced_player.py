@@ -80,7 +80,12 @@ class PlayerWindow(Gtk.Window):
         self.video_enc = Gst.ElementFactory.make(player_settings["video_enc"], "video_enc")
         self.enc_filter = Gst.ElementFactory.make("capsfilter", "enc_filter")
         self.video_parse = Gst.ElementFactory.make(player_settings["video_parse"], "video_parse")
-
+        self.audiosrc = Gst.ElementFactory.make(player_settings["audiosrc"], "audiosrc")
+        self.audio_enc = Gst.ElementFactory.make(player_settings["audio_enc"], "audio_enc")
+        self.audio_parse = Gst.ElementFactory.make(player_settings["audio_parse"], "audio_parse")
+        self.audio_queue = Gst.ElementFactory.make("queue", "audio_queue")
+        self.audio_convert = Gst.ElementFactory.make("audioconvert", "audio_convert")
+        
     def set_properties(self, player_settings):
         enc_caps = Gst.Caps.from_string(player_settings["enc_caps"])
         self.enc_filter.set_property("caps", enc_caps)
@@ -95,11 +100,21 @@ class PlayerWindow(Gtk.Window):
         self.player.add(self.enc_filter)
         self.player.add(self.muxer)
         self.player.add(self.rtmpsink)
+        self.player.add(self.audiosrc)
+        self.player.add(self.audio_enc)
+        self.player.add(self.audio_parse)
+        self.player.add(self.audio_convert)
+        self.player.add(self.audio_queue)
 
     def link_elements(self, player_settings):
         self.video_mixer.link(self.video_enc)
         self.video_enc.link(self.enc_filter)
         self.enc_filter.link(self.muxer)
+        self.audiosrc.link(self.audio_queue)
+        self.audio_queue.link(self.audio_convert)
+        self.audio_convert.link(self.audio_enc)
+        self.audio_enc.link(self.audio_parse)
+        self.audio_parse.link(self.muxer)
         self.muxer.link(self.rtmpsink)
         
     def start_stop(self, w):
@@ -133,6 +148,9 @@ default_settings = {
     "video_enc_properties" : (("tune", "zerolatency"),), 
     "enc_caps" : "video/x-h264,profile=baseline",
     "video_parse" : "h264parse",
+    "audiosrc" : "alsasrc",
+    "audio_enc" : "voaacenc",
+    "audio_parse" : "aacparse",
     "rtmp_dst" : None,
 } 
 
