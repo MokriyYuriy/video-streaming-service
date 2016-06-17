@@ -2,3 +2,4 @@
 VDenv/
 ClientPublisher/test.py
 __pycache__
+DjangoServer/secretkey.txt

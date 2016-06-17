@@ -1,0 +1,19 @@
+<head>
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+</head>
+<body>
+<h1 style="text-align: center"> Latest streams </h1>
+{% if latest_streams %}
+    <ul>
+    {% for stream in latest_streams %}
+        <li>  
+          <h3> <a href="/streams/{{ stream.id }}/"> {{ stream.title }}  </a> <span> {{ stream.pub_date }} </span> </h3>
+          <p> {{ stream.description }} </p>
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No streams are available.</p>
+{% endif %}
+</body>
