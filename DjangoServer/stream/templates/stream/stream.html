@@ -1,0 +1,145 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<style> 
+</style>
+<head>
+ <meta charset="utf-8">  
+   <!-- The "functional" skin - choose from: "functional.css", "minimalist.css", "playful.css" -->
+   <link rel="stylesheet" href="//releases.flowplayer.org/6.0.5/skin/functional.css">
+   
+   <!-- Minimal styling for this standalone page, can be removed -->
+   <link rel="stylesheet" href="http://demos.flowplayer.org/media/css/demo.css">
+   <!-- Syntax highlighting of source code, can be removed -->
+   <link rel="stylesheet" href="http://demos.flowplayer.org/media/css/pygments.css">
+   
+      <!-- Flowplayer depends on jquery 1.7.2+ for video tag based installations -->
+   <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+         <!-- Flowplayer library -->
+   <script src="//releases.flowplayer.org/6.0.5/flowplayer.min.js"></script>
+   <!-- Flowplayer library -->
+
+<!-- Flowplayer hlsjs engine -->
+<script src="//releases.flowplayer.org/hlsjs/flowplayer.hlsjs.min.js"></script>
+</head>
+
+<style> .top-buffer { margin-top:2em; } </style>
+
+<style>
+.flowplayer {
+  width: 600px;
+  height: 338px;
+  background: #777;
+  margin-bottom: 10px;
+}
+/* customized error message */
+.flowplayer.is-error .fp-message {
+  background-image: url(http://demos.flowplayer.org/media/img/interruption.png);
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.flowplayer.is-error .fp-message h2,
+.flowplayer.is-error .fp-message p {
+  font-weight: bold;
+  color: #000;
+  text-shadow: 1px 1px #fff
+}
+.flowplayer.is-error .fp-message h2 {
+  font-size: 200%;
+}
+.flowplayer.is-error .fp-message p {
+  font-size: 150%;
+}
+</style>
+
+<script>
+window.onload = function () {
+ 
+  var container = document.getElementById("live"),
+      timer,
+ 
+  player = flowplayer(container, {
+    ratio: 9/16,
+    splash: true,
+    live: true,
+    clip: {
+      hlsjs: {
+        // listen to hls.js ERROR
+        listeners: ["hlsError"],
+        // limit amount of hls level loading retries
+        levelLoadingMaxRetry: 2
+      },
+      flashls: {
+        // limit amount of retries to load hls manifests in Flash
+        manifestloadmaxretry: 2
+      },
+      sources: [
+        { type: "application/vnd.apple.mpegurl",
+          src:  "{{ stream.out_stream_link }}" }
+      ]
+    }
+ 
+  }).on("load", function (e, api, video) {
+    clearInterval(timer);
+ 
+  }).on("error", function (e, api, err) {
+    var delay = 5,
+        header = container.querySelector(".fp-message h2"),
+        detail = container.querySelector(".fp-message p");
+ 
+    if (err.code === 4 || err.code === 9) {
+      header.innerHTML = "We are sorry, currently no live stream available.";
+      detail.innerHTML = "Retrying in <span>" + delay + "</span> seconds ...";
+ 
+      if (flowplayer.support.flashVideo) {
+        api.one("flashdisabled", function () {
+          container.querySelector(".fp-flash-disabled").style.display = "none";
+        });
+      }
+ 
+      timer = setInterval(function () {
+        delay -= 1;
+        detail.querySelector("span").innerHTML = delay;
+ 
+        if (!delay) {
+          clearInterval(timer);
+          api.error = api.loading = false;
+          container.className = container.className.replace(/ *is-error */, "");
+          api.load(api.conf.clip);
+        }
+ 
+      }, 1000);
+    }
+ 
+  }).on("hlsError", function (e, api, data) {
+    // communicate hlsjs specific error handling
+    // our dummy mnanifest has bogus levels
+    // make hls.js levelLoadError fatal
+    if (data.details === "levelLoadError") {
+      var videoInfo = api.video;
+ 
+      videoInfo.url = data.url;
+      // trigger core player error event
+      // error code 4 for network error
+      api.trigger("error", [api, {code: 4, video: videoInfo}]);
+    }
+ 
+  })   
+};
+</script>
+
+<body>
+  <div class="row">
+    <div class="col-lg-6 col-lg-offset-3">
+     <center> <h2> {{ stream.title  }} </h2> </center>
+    </div>
+  </div>
+<center><div id="live" class="fixed-controls"></div></center>
+<div class="row top-buffer">
+  <div class="col-lg-6 col-lg-offset-3">
+    <h3> Description </h3>
+    <p> {{ stream.description }} </p>
+  </div>
+</div>
+
+{% endblock content %}

@@ -1,0 +1,15 @@
+{% extends "main/base.html" %}
+{% load bootstrap %}
+{% block content %}
+<style> .top-buffer { margin-top:10em; } </style>
+<div class="row top-buffer">
+<div class = "col-lg-3 col-lg-offset-4">  
+<form method="post" action="{% url 'accounts:login' %}">
+{% csrf_token %}
+{{ form|bootstrap }}
+<button type="submit" class="btn btn-primary">Submit</button>
+<input type="hidden" name="next" value="{{ next }}" />
+</form>
+</div>
+</div>
+{% endblock %}

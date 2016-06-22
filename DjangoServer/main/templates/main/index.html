@@ -1,0 +1,41 @@
+{% extends 'main/base.html' %}
+
+
+{% block content %}
+{% block stream_list %}
+<style> .top-buffer1 { margin-top:10em; } </style>
+<style> .top-buffer2 { margin-top:2em; } </style>
+
+
+<div class="row top-buffer1">
+<div class="col-lg-6 col-lg-offset-3">
+  <div class="input-group">
+    <input type="text" class="form-control" placeholder="">
+    <span class="input-group-btn">
+      <button class="btn btn-default" type="button">Search</button>
+    </span>
+  </div>
+</div>
+</div>
+
+<div class="row top-buffer2">
+<div class="col-lg-4 col-lg-offset-4">
+  <center>
+    <h4> Last streams </h4>
+  </center>
+    {% if latest_streams %}
+    <ul>
+      {% for stream in latest_streams %}
+      <li>  
+        <p> <a href="/stream/{{ stream.id }}/"> {{ stream.title }}  </a> <span> {{ stream.pub_date }} </span> <p>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>No streams are available.</p>
+    {% endif %}
+</div>
+</div>
+
+{% endblock stream_list %}
+{% endblock content %}

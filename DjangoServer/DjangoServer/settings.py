@@ -39,6 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'stream.apps.StreamConfig',
+    'main.apps.MainConfig',
+    'accounts.apps.AccountsConfig',
+    'corsheaders',
+    'bootstrapform',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -50,6 +54,8 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'DjangoServer.urls'
@@ -119,5 +125,8 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
-
 STATIC_URL = '/static/'
+CORS_ORIGIN_ALLOW_ALL = True
+
+
+LOGIN_URL = '/account/login'

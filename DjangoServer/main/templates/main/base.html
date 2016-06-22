@@ -1,0 +1,43 @@
+<!doctype html>
+{% block style %}
+<head>
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+</head>
+{% endblock style %}
+<div class="row">
+<div class="col-lg-10 col-lg-offset-1">
+<body>
+{% block navbar %}
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+    <a class="navbar-brand" href="/">Main Page</a>
+    </div>
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li><a href="{% url 'stream:all_streams' %}"> All streams</a></li>
+         {% if  request.user.is_authenticated  %}
+         <li> <a href="{% url 'stream:create_stream' %}"> Create new stream </a> </li>
+         {% endif %}
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        {% if  request.user.is_authenticated  %}
+        <li><p class="navbar-text">Signed in as <a href="{% url 'accounts:profile' %}">{{ request.user.username }}</a></p> </li>
+        <li><a href="{% url 'accounts:logout' %}"> <span class="glyphicon glyphicon-log-out"></span> Sign out </a> </li>
+        {% else %}
+        <li><a href="{% url 'accounts:register' %}"><span class="glyphicon glyphicon-user"></span> Sign up </a></li>
+        <li><a href="{% url 'accounts:login' %}"><span class="glyphicon glyphicon-log-in"></span> Sign in </a></li>
+        {% endif %}
+      </ul>
+    </div>
+   
+  </div>
+</nav>
+
+{% endblock navbar %}
+{% block content %}
+{% endblock content %}
+</div>
+</div>
+</body>

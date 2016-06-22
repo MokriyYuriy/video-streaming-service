@@ -1,0 +1,17 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<center>
+<h1>{{ request.user.username }}</h1>
+
+<h3> My streams </h3>
+
+{% for stream in my_streams %}
+
+ <li>  
+   <p> <a href="/stream/{{ stream.id }}/"> {{ stream.title }}  </a> <span> {{ stream.pub_date }} </span> <a href={{ stream.in_stream_link  }}> stream_link </a> <p>
+ </li>
+
+{% endfor %}
+</center>
+{% endblock content %}
